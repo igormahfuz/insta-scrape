@@ -2,5 +2,6 @@
     "actorSpecification": 1,
     "name": "instagram-engagement-scraper",
     "version": "0.1",
-    "buildTag": "latest"
+    "buildTag": "latest",
+    "output": "./output_schema.json"
 }

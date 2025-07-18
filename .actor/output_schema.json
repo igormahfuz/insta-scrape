@@ -1,0 +1,28 @@
+{
+    "title": "Instagram Engagement Scraper Output",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "username": {
+            "type": "string"
+        },
+        "followers": {
+            "type": "integer"
+        },
+        "posts_analyzed": {
+            "type": "integer"
+        },
+        "avg_likes": {
+            "type": "integer"
+        },
+        "avg_comments": {
+            "type": "integer"
+        },
+        "engagement_rate_%": {
+            "type": "number"
+        },
+        "error": {
+            "type": "string"
+        }
+    }
+}
