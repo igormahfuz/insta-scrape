@@ -1,0 +1,18 @@
+{
+  "title": "Instagram ER scraper",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "usernames": {
+      "title": "Usernames (um por linha)",
+      "type": "array",
+      "editor": "stringList",
+      "description": "Cole aqui os usernames do Instagram, sem o @.",
+      "prefill": [
+        "kyliejenner",
+        "justinbieber"
+      ]
+    }
+  },
+  "required": ["usernames"]
+}
