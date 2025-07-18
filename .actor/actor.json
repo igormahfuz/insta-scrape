@@ -4,18 +4,36 @@
     "version": "0.1",
     "buildTag": "latest",
     "output": {
-        "type": "json",
-        "schema": {
-            "type": "object",
-            "properties": {
-                "username": {"type": "string"},
-                "followers": {"type": "integer"},
-                "posts_analyzed": {"type": "integer"},
-                "avg_likes": {"type": "integer"},
-                "avg_comments": {"type": "integer"},
-                "engagement_rate_%": {"type": "number"},
-                "error": {"type": "string"}
+        "actorOutputSchemaVersion": 1,
+        "properties": [
+            {
+                "name": "username",
+                "type": "string"
+            },
+            {
+                "name": "followers",
+                "type": "integer"
+            },
+            {
+                "name": "posts_analyzed",
+                "type": "integer"
+            },
+            {
+                "name": "avg_likes",
+                "type": "integer"
+            },
+            {
+                "name": "avg_comments",
+                "type": "integer"
+            },
+            {
+                "name": "engagement_rate_%",
+                "type": "number"
+            },
+            {
+                "name": "error",
+                "type": "string"
             }
-        }
+        ]
     }
 }
