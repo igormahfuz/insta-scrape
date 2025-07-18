@@ -92,7 +92,8 @@ async def main() -> None:
 
         # 2. Configura o proxy
         # O Actor.new_client() já usa as configurações de proxy do input automaticamente
-        async with httpx.AsyncClient(http2=True) as http:
+        proxy_configuration = await Actor.create_proxy_configuration()
+        async with Actor.new_client(proxy_configuration=proxy_configuration) as http:
             
             # 3. Processa cada perfil
             for idx, username in enumerate(usernames, 1):
