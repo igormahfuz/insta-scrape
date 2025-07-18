@@ -103,8 +103,16 @@ async def main() -> None:
 
                 result = await fetch_profile(http, clean_username)
 
-                # Garante que todas as colunas existem, mesmo em caso de erro
-                row = {field: None for field in FIELDS}
+                # Garante que todas as colunas existem e têm o tipo correto, mesmo em caso de erro
+                row = {
+                    "username": clean_username,
+                    "followers": 0,
+                    "posts_analyzed": 0,
+                    "avg_likes": 0,
+                    "avg_comments": 0,
+                    "engagement_rate_%": 0.0,
+                    "error": None,
+                }
                 row.update(result)
                 await Actor.push_data(row)
 
