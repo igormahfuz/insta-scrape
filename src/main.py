@@ -27,7 +27,7 @@ FIELDS = [
     "posts_analyzed",
     "avg_likes",
     "avg_comments",
-    "engagement_rate_%",
+    "engagement_rate_pct",
     "error"            # manter mesmo se quase sempre None
 ]
 
@@ -72,7 +72,7 @@ async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
             "posts_analyzed": n_posts,
             "avg_likes": math.floor(likes_total / n_posts),
             "avg_comments": math.floor(comments_total / n_posts),
-            "engagement_rate_%": round(er, 2),
+            "engagement_rate_pct": round(er, 2),
             "error": None,
         }
     except httpx.HTTPStatusError as e:
@@ -110,7 +110,7 @@ async def main() -> None:
                     "posts_analyzed": 0,
                     "avg_likes": 0,
                     "avg_comments": 0,
-                    "engagement_rate_%": 0.0,
+                    "engagement_rate_pct": 0.0,
                     "error": None,
                 }
                 row.update(result)
