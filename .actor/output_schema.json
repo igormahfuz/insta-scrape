@@ -1,47 +1,54 @@
 {
-         "actorOutputSchemaVersion": 1,
-         "properties": {
-             "username": {
-                 "type": "string",
-                 "title": "Username",
-                 "description": "O nome de usuário do Instagram.",
-                 "editor": "textfield"
-             },
+        "actorOutputSchemaVersion": 1,
+        "properties": {
+            "username": {
+                "type": "string",
+                "title": "Username",
+                "description": "O nome de usuário do Instagram.",
+                "editor": "textfield",
+                "template": "{{username}}"
+            },
             "followers": {
                 "type": "integer",
                 "title": "Seguidores",
                 "description": "O número de seguidores.",
-                "editor": "textfield"
+                "editor": "textfield",
+                "template": "{{followers}}"
             },
             "posts_analyzed": {
                 "type": "integer",
                 "title": "Posts Analisados",
                 "description": "O número de posts analisados (máx. 12).",
-                "editor": "textfield"
+                "editor": "textfield",
+                "template": "{{posts_analyzed}}"
             },
             "avg_likes": {
                 "type": "integer",
                 "title": "Média de Likes",
                 "description": "A média de likes nos posts analisados.",
-                "editor": "textfield"
+                "editor": "textfield",
+                "template": "{{avg_likes}}"
             },
             "avg_comments": {
                 "type": "integer",
                 "title": "Média de Comentários",
                 "description": "A média de comentários nos posts analisados.",
-                "editor": "textfield"
+                "editor": "textfield",
+                "template": "{{avg_comments}}"
             },
-            "engagement_rate_%": {
+            "engagement_rate_pct": {
                 "type": "number",
                 "title": "Taxa de Engajamento (%)",
                 "description": "A taxa de engajamento calculada.",
-                "editor": "textfield"
+                "editor": "textfield",
+                "template": "{{engagement_rate_pct}}"
             },
             "error": {
                 "type": "string",
                 "title": "Erro",
                 "description": "Mensagem de erro, se houver.",
-                "editor": "textfield"
+                "editor": "textfield",
+                "template": "{{error}}"
             }
         }
     }
