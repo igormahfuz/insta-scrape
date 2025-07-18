@@ -1,26 +1,26 @@
 {
-    2         "actorOutputSchemaVersion": 1,
-    3         "properties": {
-    4             "username": {
-    5                 "type": "string"
-    6             },
-    7             "followers": {
-    8                 "type": "integer"
-    9             },
-   10             "posts_analyzed": {
-   11                 "type": "integer"
-   12             },
-   13             "avg_likes": {
-   14                 "type": "integer"
-   15             },
-   16             "avg_comments": {
-   17                 "type": "integer"
-   18             },
-   19             "engagement_rate_%": {
-   20                 "type": "number"
-   21             },
-   22             "error": {
-   23                 "type": "string"
-   24             }
-   25         }
-   26     }
+             "actorOutputSchemaVersion": 1,
+             "properties": {
+                 "username": {
+                     "type": "string"
+                 },
+                 "followers": {
+                     "type": "integer"
+                 },
+                "posts_analyzed": {
+                    "type": "integer"
+                },
+                "avg_likes": {
+                    "type": "integer"
+                },
+                "avg_comments": {
+                    "type": "integer"
+                },
+                "engagement_rate_%": {
+                    "type": "number"
+                },
+                "error": {
+                    "type": "string"
+                }
+            }
+        }
