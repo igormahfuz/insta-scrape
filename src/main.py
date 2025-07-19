@@ -13,6 +13,7 @@ from apify import Actor
 import httpx
 import math
 import asyncio
+import importlib.metadata
 
 IG_ENDPOINT = (
     "https://i.instagram.com/api/v1/users/web_profile_info/"
@@ -66,6 +67,8 @@ async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
 
 async def main() -> None:
     async with Actor:
+        Actor.log.info(f"httpx version: {importlib.metadata.version('httpx')}")
+
         inp = await Actor.get_input() or {}
         usernames: list[str] = inp.get("usernames", [])
         if not usernames:
