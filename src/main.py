@@ -81,7 +81,7 @@ async def main() -> None:
                     continue
 
                 session_id = f'session_{clean_username}'
-                proxy_url = await proxy_configuration.new_url(session=session_id)
+                proxy_url = await proxy_configuration.new_url(session_id=session_id)
                 
                 result = await fetch_profile(http, clean_username, proxy_url)
 
