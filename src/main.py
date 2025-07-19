@@ -74,6 +74,9 @@ async def main() -> None:
         if not usernames:
             raise ValueError("Input 'usernames' (uma lista de perfis) é obrigatório.")
 
+        # Abre um dataset nomeado para garantir que o esquema seja aplicado
+        dataset = await Actor.open_dataset(name='instagram-engagement-output')
+
         proxy_configuration = await Actor.create_proxy_configuration(groups=['RESIDENTIAL'])
 
         for idx, username in enumerate(usernames, 1):
@@ -98,7 +101,8 @@ async def main() -> None:
                 "error": None,
             }
             row.update(result)
-            await Actor.push_data(row)
+            # Empurra os dados para o dataset nomeado
+            await dataset.push_data(row)
 
             msg = f"{idx}/{len(usernames)} → {clean_username}"
             if result.get("error"):
