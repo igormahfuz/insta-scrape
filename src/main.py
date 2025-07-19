@@ -68,7 +68,6 @@ async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
 async def main() -> None:
     async with Actor:
         Actor.log.info(f"httpx version: {importlib.metadata.version('httpx')}")
-        Actor.log.info(f"httpx module contents: {dir(httpx)}")
 
         inp = await Actor.get_input() or {}
         usernames: list[str] = inp.get("usernames", [])
@@ -85,7 +84,7 @@ async def main() -> None:
             session_id = f'session_{clean_username}'
             proxy_url = await proxy_configuration.new_url(session_id=session_id)
             
-            transport = httpx.AsyncProxyTransport.from_url(proxy_url)
+            transport = httpx.AsyncHTTPTransport(proxy=proxy_url)
             async with httpx.AsyncClient(transport=transport) as http:
                 result = await fetch_profile(http, clean_username)
 
