@@ -13,41 +13,26 @@ from apify import Actor
 import httpx
 import math
 import asyncio
-import os
-from apify_client import ApifyClient
-
 
 IG_ENDPOINT = (
     "https://i.instagram.com/api/v1/users/web_profile_info/"
     "?username={username}"
 )
-FIELDS = [
-    "username",
-    "followers",
-    "posts_analyzed",
-    "avg_likes",
-    "avg_comments",
-    "engagement_rate_pct",
-    "error"            # manter mesmo se quase sempre None
-]
-
 
 HEADERS = {
-    # App‑ID usado pelos apps oficiais (público)
     "x-ig-app-id": "936619743392459",
-    # User‑Agent “normal” para evitar bloqueios triviais
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
     ),
 }
 
-
-async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
-    """Baixa JSON público do perfil e devolve dicionário com ER."""
+async def fetch_profile(client: httpx.AsyncClient, username: str, proxy_url: str) -> dict:
+    """Baixa JSON público do perfil usando uma sessão de proxy específica."""
     url = IG_ENDPOINT.format(username=username)
+    proxies = {"http://": proxy_url, "https://": proxy_url}
     try:
-        r = await client.get(url, headers=HEADERS, follow_redirects=True, timeout=30)
+        r = await client.get(url, headers=HEADERS, follow_redirects=True, timeout=30, proxies=proxies)
         r.raise_for_status()
         data = r.json().get("data", {}).get("user")
         if not data:
@@ -78,38 +63,28 @@ async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
     except httpx.HTTPStatusError as e:
         return {"username": username, "error": f"HTTP Error: {e.response.status_code}"}
     except Exception as e:
-        # Adiciona o tipo da exceção para facilitar o debug
         return {"username": username, "error": f"{type(e).__name__}: {e}"}
-
 
 async def main() -> None:
     async with Actor:
-        # 1. Lê o input
         inp = await Actor.get_input() or {}
         usernames: list[str] = inp.get("usernames", [])
         if not usernames:
             raise ValueError("Input 'usernames' (uma lista de perfis) é obrigatório.")
 
-        # 2. Configura o proxy
-        # 1. Cria a configuração de proxy, solicitando um proxy RESIDENCIAL
         proxy_configuration = await Actor.create_proxy_configuration(groups=['RESIDENTIAL'])
 
-        # 2. Cria um cliente HTTP que usará os proxies da Apify
-        async with httpx.AsyncClient(
-            http2=True,
-            proxies=await proxy_configuration.new_httpx_proxy(),
-        ) as http:
-            
-            # 3. Processa cada perfil
+        async with httpx.AsyncClient(http2=True) as http:
             for idx, username in enumerate(usernames, 1):
-                # Pega o nome de usuário limpo, sem @ ou espaços
                 clean_username = username.strip("@ ")
                 if not clean_username:
                     continue
 
-                result = await fetch_profile(http, clean_username)
+                session_id = f'session_{clean_username}'
+                proxy_url = await proxy_configuration.new_url(session=session_id)
+                
+                result = await fetch_profile(http, clean_username, proxy_url)
 
-                # Garante que todas as colunas existem e têm o tipo correto, mesmo em caso de erro
                 row = {
                     "username": clean_username,
                     "followers": 0,
@@ -122,7 +97,6 @@ async def main() -> None:
                 row.update(result)
                 await Actor.push_data(row)
 
-                # Atualiza o status para sabermos o progresso
                 msg = f"{idx}/{len(usernames)} → {clean_username}"
                 if result.get("error"):
                     msg += f" ❌ ({result['error']})"
@@ -132,5 +106,4 @@ async def main() -> None:
                 Actor.log.info(msg)
                 await Actor.set_status_message(msg)
 
-                # Pausa para não sobrecarregar o servidor (opcional, mas recomendado)
                 await asyncio.sleep(0.2)
