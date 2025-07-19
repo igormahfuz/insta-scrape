@@ -41,22 +41,26 @@ async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
         followers = data.get("edge_followed_by", {}).get("count", 0)
         edges = data.get("edge_owner_to_timeline_media", {}).get("edges", [])[:12]
 
-        likes_total = 0
-        comments_total = 0
+        total_engagement_score = 0
         for edge in edges:
             node = edge.get("node", {})
-            likes_total += node.get("edge_liked_by", {}).get("count", 0)
-            comments_total += node.get("edge_media_to_comment", {}).get("count", 0)
+            # Começa com likes + comentários
+            post_score = node.get("edge_liked_by", {}).get("count", 0) + node.get("edge_media_to_comment", {}).get("count", 0)
+            # Se for vídeo, adiciona as visualizações
+            if node.get('is_video', False):
+                post_score += node.get('video_view_count', 0)
+            total_engagement_score += post_score
 
         n_posts = max(len(edges), 1)
-        er = ((likes_total + comments_total) / n_posts) / followers * 100 if followers else 0
+        avg_engagement_score = total_engagement_score / n_posts
+        # ER = (Média da Pontuação de Engajamento / Seguidores) * 100
+        er = (avg_engagement_score / followers) * 100 if followers else 0
 
         return {
             "username": username,
             "followers": followers,
             "posts_analyzed": n_posts,
-            "avg_likes": math.floor(likes_total / n_posts),
-            "avg_comments": math.floor(comments_total / n_posts),
+            "avg_engagement_score": math.floor(avg_engagement_score),
             "engagement_rate_pct": round(er, 2),
             "error": None,
         }
@@ -92,13 +96,11 @@ async def main() -> None:
                 "username": clean_username,
                 "followers": 0,
                 "posts_analyzed": 0,
-                "avg_likes": 0,
-                "avg_comments": 0,
+                "avg_engagement_score": 0,
                 "engagement_rate_pct": 0.0,
                 "error": None,
             }
             row.update(result)
-            # Empurra os dados para o dataset PADRÃO do ator
             await Actor.push_data(row)
 
             msg = f"{idx}/{len(usernames)} → {clean_username}"
