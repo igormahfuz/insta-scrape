@@ -84,10 +84,7 @@ async def main() -> None:
             session_id = f'session_{clean_username}'
             proxy_url = await proxy_configuration.new_url(session_id=session_id)
             
-            async with httpx.AsyncClient(
-                http2=True,
-                proxies={"http://": proxy_url, "https://": proxy_url},
-            ) as http:
+            async with httpx.AsyncClient(proxies=proxy_url) as http:
                 result = await fetch_profile(http, clean_username)
 
             row = {
