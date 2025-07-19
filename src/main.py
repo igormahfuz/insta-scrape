@@ -68,6 +68,7 @@ async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
 async def main() -> None:
     async with Actor:
         Actor.log.info(f"httpx version: {importlib.metadata.version('httpx')}")
+        Actor.log.info(f"httpx module contents: {dir(httpx)}")
 
         inp = await Actor.get_input() or {}
         usernames: list[str] = inp.get("usernames", [])
