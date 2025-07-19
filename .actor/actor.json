@@ -14,8 +14,7 @@
                             "username",
                             "followers",
                             "posts_analyzed",
-                            "avg_likes",
-                            "avg_comments",
+                            "avg_engagement_score",
                             "engagement_rate_pct",
                             "error"
                         ]
@@ -35,12 +34,8 @@
                                 "label": "Posts Analyzed",
                                 "format": "text"
                             },
-                            "avg_likes": {
-                                "label": "Avg. Likes",
-                                "format": "text"
-                            },
-                            "avg_comments": {
-                                "label": "Avg. Comments",
+                            "avg_engagement_score": {
+                                "label": "Avg. Engagement Score",
                                 "format": "text"
                             },
                             "engagement_rate_pct": {
