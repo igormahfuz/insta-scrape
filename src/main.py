@@ -27,12 +27,11 @@ HEADERS = {
     ),
 }
 
-async def fetch_profile(client: httpx.AsyncClient, username: str, proxy_url: str) -> dict:
-    """Baixa JSON público do perfil usando uma sessão de proxy específica."""
+async def fetch_profile(client: httpx.AsyncClient, username: str) -> dict:
+    """Baixa JSON público do perfil usando um cliente com proxy pré-configurado."""
     url = IG_ENDPOINT.format(username=username)
-    proxies = {"http://": proxy_url, "https://": proxy_url}
     try:
-        r = await client.get(url, headers=HEADERS, follow_redirects=True, timeout=30, proxies=proxies)
+        r = await client.get(url, headers=HEADERS, follow_redirects=True, timeout=30)
         r.raise_for_status()
         data = r.json().get("data", {}).get("user")
         if not data:
@@ -74,36 +73,39 @@ async def main() -> None:
 
         proxy_configuration = await Actor.create_proxy_configuration(groups=['RESIDENTIAL'])
 
-        async with httpx.AsyncClient(http2=True) as http:
-            for idx, username in enumerate(usernames, 1):
-                clean_username = username.strip("@ ")
-                if not clean_username:
-                    continue
+        for idx, username in enumerate(usernames, 1):
+            clean_username = username.strip("@ ")
+            if not clean_username:
+                continue
 
-                session_id = f'session_{clean_username}'
-                proxy_url = await proxy_configuration.new_url(session_id=session_id)
-                
-                result = await fetch_profile(http, clean_username, proxy_url)
+            session_id = f'session_{clean_username}'
+            proxy_url = await proxy_configuration.new_url(session_id=session_id)
+            
+            async with httpx.AsyncClient(
+                http2=True,
+                proxies={"http://": proxy_url, "https://": proxy_url},
+            ) as http:
+                result = await fetch_profile(http, clean_username)
 
-                row = {
-                    "username": clean_username,
-                    "followers": 0,
-                    "posts_analyzed": 0,
-                    "avg_likes": 0,
-                    "avg_comments": 0,
-                    "engagement_rate_pct": 0.0,
-                    "error": None,
-                }
-                row.update(result)
-                await Actor.push_data(row)
+            row = {
+                "username": clean_username,
+                "followers": 0,
+                "posts_analyzed": 0,
+                "avg_likes": 0,
+                "avg_comments": 0,
+                "engagement_rate_pct": 0.0,
+                "error": None,
+            }
+            row.update(result)
+            await Actor.push_data(row)
 
-                msg = f"{idx}/{len(usernames)} → {clean_username}"
-                if result.get("error"):
-                    msg += f" ❌ ({result['error']})"
-                else:
-                    msg += " ✔"
-                
-                Actor.log.info(msg)
-                await Actor.set_status_message(msg)
+            msg = f"{idx}/{len(usernames)} → {clean_username}"
+            if result.get("error"):
+                msg += f" ❌ ({result['error']})"
+            else:
+                msg += " ✔"
+            
+            Actor.log.info(msg)
+            await Actor.set_status_message(msg)
 
-                await asyncio.sleep(0.2)
+            await asyncio.sleep(0.2)
