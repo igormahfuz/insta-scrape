@@ -91,8 +91,14 @@ async def main() -> None:
             raise ValueError("Input 'usernames' (uma lista de perfis) é obrigatório.")
 
         # 2. Configura o proxy
-        # O Actor.new_client() já usa as configurações de proxy do input automaticamente
-        async with Actor.new_client() as http:
+        # 1. Cria a configuração de proxy, solicitando um proxy RESIDENCIAL
+        proxy_configuration = await Actor.create_proxy_configuration(groups=['RESIDENTIAL'])
+
+        # 2. Cria um cliente HTTP que usará os proxies da Apify
+        async with httpx.AsyncClient(
+            http2=True,
+            proxies=await proxy_configuration.new_httpx_proxy(),
+        ) as http:
             
             # 3. Processa cada perfil
             for idx, username in enumerate(usernames, 1):
