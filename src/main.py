@@ -28,7 +28,7 @@ HEADERS = {
     ),
 }
 
-# --- Função de Lógica Principal com Retentativas ---
+# --- Função de Lógica Principal com Retentativas (sem modificação) ---
 
 async def fetch_profile(client: httpx.AsyncClient, username: str, proxy_url: str) -> dict:
     """
@@ -76,16 +76,12 @@ async def fetch_profile(client: httpx.AsyncClient, username: str, proxy_url: str
         except (httpx.HTTPStatusError, httpx.ProxyError, httpx.ReadTimeout) as e:
             last_error = e
             Actor.log.warning(f"Tentativa {attempt + 1}/{MAX_RETRIES} falhou para '{username}': {type(e).__name__}. Retentando...")
-            
-            # Exponential backoff: 2s, 4s, 8s
             delay = BASE_DELAY_SECONDS * (2 ** attempt)
             await asyncio.sleep(delay)
         
         except Exception as e:
-            # Erros inesperados não são retentados
             return {"username": username, "error": f"Erro inesperado: {type(e).__name__}: {e}"}
 
-    # Se todas as tentativas falharem, retorna o último erro conhecido
     return {"username": username, "error": f"Falha após {MAX_RETRIES} tentativas: {type(last_error).__name__}"}
 
 
@@ -97,29 +93,19 @@ async def process_and_save_username(
     proxy_config,
     semaphore: asyncio.Semaphore
 ) -> dict:
-    """
-    Adquire o semáforo, busca o perfil, salva os dados no Actor e retorna o resultado.
-    """
     async with semaphore:
         session_id = f'session_{username}'
         proxy_url = await proxy_config.new_url(session_id=session_id)
-        
         result = await fetch_profile(client, username, proxy_url)
-
         row = {
-            "username": username,
-            "followers": 0,
-            "posts_analyzed": 0,
-            "avg_engagement_score": 0,
-            "engagement_rate_pct": 0.0,
-            "error": None,
+            "username": username, "followers": 0, "posts_analyzed": 0,
+            "avg_engagement_score": 0, "engagement_rate_pct": 0.0, "error": None,
         }
         row.update(result)
-        
         await Actor.push_data(row)
         return result
 
-# --- Função Principal Modificada para Concorrência (sem modificação) ---
+# --- Função Principal Modificada para Concorrência Configurável ---
 
 async def main() -> None:
     async with Actor:
@@ -127,18 +113,19 @@ async def main() -> None:
 
         inp = await Actor.get_input() or {}
         usernames: list[str] = inp.get("usernames", [])
+        # Permite configurar a concorrência via input, com um padrão mais alto
+        concurrency = inp.get("concurrency", 100)
+
         if not usernames:
             raise ValueError("Input 'usernames' (uma lista de perfis) é obrigatório.")
 
-        CONCURRENCY = 20
-        semaphore = asyncio.Semaphore(CONCURRENCY)
-        
+        semaphore = asyncio.Semaphore(concurrency)
         proxy_configuration = await Actor.create_proxy_configuration(groups=['RESIDENTIAL'])
         
         total_usernames = len(usernames)
         processed_count = 0
         
-        Actor.log.info(f"Iniciando processamento de {total_usernames} usernames com concorrência de {CONCURRENCY}.")
+        Actor.log.info(f"Iniciando processamento de {total_usernames} usernames com concorrência de {concurrency}.")
 
         async with httpx.AsyncClient() as client:
             tasks = []
