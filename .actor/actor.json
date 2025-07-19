@@ -3,5 +3,51 @@
     "name": "instagram-engagement-scraper",
     "version": "0.1",
     "buildTag": "latest",
-    "output": "./output_schema.json"
+    "output": {
+        "actorOutputSchemaVersion": 1,
+        "properties": {
+            "username": {
+                "type": "string",
+                "title": "Username",
+                "description": "O nome de usuário do Instagram.",
+                "template": "{{username}}"
+            },
+            "followers": {
+                "type": "string",
+                "title": "Seguidores",
+                "description": "O número de seguidores.",
+                "template": "{{followers}}"
+            },
+            "posts_analyzed": {
+                "type": "string",
+                "title": "Posts Analisados",
+                "description": "O número de posts analisados (máx. 12).",
+                "template": "{{posts_analyzed}}"
+            },
+            "avg_likes": {
+                "type": "string",
+                "title": "Média de Likes",
+                "description": "A média de likes nos posts analisados.",
+                "template": "{{avg_likes}}"
+            },
+            "avg_comments": {
+                "type": "string",
+                "title": "Média de Comentários",
+                "description": "A média de comentários nos posts analisados.",
+                "template": "{{avg_comments}}"
+            },
+            "engagement_rate_pct": {
+                "type": "string",
+                "title": "Taxa de Engajamento (%)",
+                "description": "A taxa de engajamento calculada.",
+                "template": "{{engagement_rate_pct}}"
+            },
+            "error": {
+                "type": "string",
+                "title": "Erro",
+                "description": "Mensagem de erro, se houver.",
+                "template": "{{error}}"
+            }
+        }
+    }
 }
