@@ -7,7 +7,7 @@
         "dataset": {
             "actorSpecification": 1,
             "views": {
-                "default": {
+                "overview": {
                     "title": "Instagram Engagement Results",
                     "transformation": {
                         "fields": [
